@@ -67,6 +67,9 @@ def GetInputFile():
     except:
         messagebox.showerror("ERROR", "An Error Occurred!\n")
 
+def Calculate_Ensamble_Mean():
+    Functions.Calculate_Ensamble_Mean()
+
 def Click_Show_Plot_M_Ensemble_Button(key):
     # Open button
     try:
@@ -101,7 +104,7 @@ if __name__ == '__main__':
 
     # Main App
     root = Tk()
-    root.geometry("420x380")
+    root.geometry("420x415")
     root.title("Statistical Analysis Of Text Files")
 
 # ==================================================================================================================== #
@@ -123,6 +126,30 @@ if __name__ == '__main__':
     button_Choose_File.pack()
 
 # ==================================================================================================================== #
+    # Frame 8
+    Frame_8 = LabelFrame(root, padx=0, pady=0)
+
+    # Create Radio buttons
+    Processes = [
+        ("X(t)", "X(t)"),
+        ("Y(t)", "Y(t)"),
+        ("Z(t)", "Z(t)"),
+        ("P(t)", "P(t)"),
+        ("M(t)", "M(t)"),
+    ]
+
+    PlotType = StringVar()
+    PlotType.set("X(t)")
+
+    column = 0
+    for text, mode in Processes:
+        Radiobutton(Frame_8, text=text, variable=PlotType, value=mode).grid(row=0, column=column)
+        column = column + 1
+
+    # Shoving Frame 8 into the screen
+    Frame_8.place(x=10, y=75)
+
+# ==================================================================================================================== #
 # Frame 6
     Frame_6 = LabelFrame(root, padx=0, pady=0, text="Calculate")
 
@@ -131,14 +158,14 @@ if __name__ == '__main__':
 
     # Create Buttons
     Ensemble_Mean_Button = Button(Frame_6, text="Ensemble Mean", state=ACTIVE, padx=20, pady=2, fg="Black",
-                                  command=lambda: GetInputFile())
+                                  command=lambda: Calculate_Ensamble_Mean())
     Time_ACF_Button = Button(Frame_6, text="Time_ACF", state=ACTIVE, padx=20, pady=2, fg="Black",
                              command=lambda: GetInputFile())
     Total_Average_Power_Button = Button(Frame_6, text="Total_Average_Power", state=ACTIVE, padx=20, pady=2, fg="Black",
                                         command=lambda: GetInputFile())
 
     # Shoving Frame 6 into the screen
-    Frame_6.place(x=10, y=75)
+    Frame_6.place(x=10, y=110)
     Time_ACF_TextBox.pack(side=TOP)
     Ensemble_Mean_Button.pack(side=LEFT)
     Time_ACF_Button.place(x=135, y=27)
@@ -159,7 +186,7 @@ if __name__ == '__main__':
                                 command=lambda: GetInputFile())
 
 # Shoving Frame 2 into the screen
-    Frame_2.place(x=10, y=160)
+    Frame_2.place(x=10, y=195)
     Ensemble_Label.pack(side="left")
     Ensemble_TextBox.pack(side="left")
     Plot_M_Ensemble_Button.pack(side="right")
@@ -184,7 +211,7 @@ if __name__ == '__main__':
                                     command=lambda: GetInputFile())
 
 # Shoving Frame 3 into the screen
-    Frame_3.place(x=260, y=160)
+    Frame_3.place(x=260, y=195)
     ACF_i_Label.grid(row=0, column=0)
     ACF_i_TextBox.grid(row=0, column=1)
 
@@ -208,7 +235,7 @@ if __name__ == '__main__':
                                 command=lambda: GetInputFile())
 
 # Shoving Frame 4 into the screen
-    Frame_4.place(x=10, y=238)
+    Frame_4.place(x=10, y=273)
     Time_Mean_Label.pack(side="left")
     Time_Mean_TextBox.pack(side="left")
     Plot_N_Time_Mean_Button.pack(side="right")
@@ -228,13 +255,13 @@ if __name__ == '__main__':
                                     command=lambda: GetInputFile())
 
 # Shoving Frame 5 into the screen
-    Frame_5.place(x=10, y=316)
+    Frame_5.place(x=10, y=351)
     Time_ACF_Label.pack(side="left")
     Time_ACF_TextBox.pack(side="left")
     Plot_N_Time_ACF_Button.pack(side="right")
 
 # ==================================================================================================================== #
-# Frame 6
+# Frame 7
     Frame_7 = LabelFrame(root, padx=0, pady=0, text="Plot")
 
     # Create Buttons
@@ -243,8 +270,8 @@ if __name__ == '__main__':
     Time_ACF_Button = Button(Frame_7, text="Time_ACF", state=ACTIVE, padx=35, pady=2, fg="Black",
                              command=lambda: GetInputFile())
 
-    # Shoving Frame 6 into the screen
-    Frame_7.place(x=260, y=290)
+    # Shoving Frame 7 into the screen
+    Frame_7.place(x=260, y=325)
     Ensemble_Mean_Button.pack(side=TOP)
     Time_ACF_Button.pack(side=BOTTOM)
 
