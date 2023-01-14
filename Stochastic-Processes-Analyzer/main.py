@@ -4,6 +4,7 @@ from tkinter import filedialog
 from tkinter import messagebox
 from PIL import ImageTk, Image
 
+OutPutName = "D:/Self Development/Zewail collage material/Academic years/Year 3/Probability/Stochastic-Processes-Analyzer/Saved Files/" + "OutPut File"
 def Generate_Process():
     global FileName
     FileName = "D:\Self Development\Zewail collage material\Academic years\Year 3\Probability\Stochastic-Processes-Analyzer\Processes\Process_X.csv"
@@ -67,8 +68,35 @@ def GetInputFile():
     except:
         messagebox.showerror("ERROR", "An Error Occurred!\n")
 
-def Calculate_Ensamble_Mean():
-    Functions.Calculate_Ensamble_Mean()
+def Get_Choosen_Process(Chosen_Processes):
+    match Chosen_Processes:
+        case "X(t)":
+            return Process_X
+        case "Y(t)":
+            return Process_Y
+        case "Z(t)":
+            return Process_Z
+        case "P(t)":
+            return Process_P
+        case "M(t)":
+            return Process_M
+        case default:
+            return Process_X
+
+def Calculate_Ensamble_Mean(Chosen_Processe):
+    Processe = Get_Choosen_Process(Chosen_Processe)
+    Ensamble_Mean = Functions.Calculate_Ensamble_Mean(Processe)
+
+    Calculation_TextBox.config(state=NORMAL)
+    Calculation_TextBox.delete(0, END)
+    Calculation_TextBox.insert(0, str(Ensamble_Mean))
+    Calculation_TextBox.config(state=DISABLED)
+    messagebox.showinfo("Mean", str(Ensamble_Mean))
+
+    if(Functions.Save_Output_File(Ensamble_Mean, OutPutName) == True):
+        messagebox.showinfo("Save", "Ensemble Mean Saved Successfully")
+    else:
+        messagebox.showerror("ERROR", "Error in Saving!\n" + OutPutName)
 
 def Click_Show_Plot_M_Ensemble_Button(key):
     # Open button
@@ -97,10 +125,13 @@ def Click_Show_ACF_j_Button(key):
         messagebox.showerror("ERROR", "Enter number of j sample you want!\n")
 
 
+
 if __name__ == '__main__':
 
     # Generate Processes
     Generate_Process()
+    global Process
+    Process = Process_X
 
     # Main App
     root = Tk()
@@ -138,12 +169,13 @@ if __name__ == '__main__':
         ("M(t)", "M(t)"),
     ]
 
-    PlotType = StringVar()
-    PlotType.set("X(t)")
+    global Chosen_Processes
+    Chosen_Processes = StringVar()
+    Chosen_Processes.set("X(t)")
 
     column = 0
     for text, mode in Processes:
-        Radiobutton(Frame_8, text=text, variable=PlotType, value=mode).grid(row=0, column=column)
+        Radiobutton(Frame_8, text=text, variable=Chosen_Processes, value=mode).grid(row=0, column=column)
         column = column + 1
 
     # Shoving Frame 8 into the screen
@@ -154,11 +186,11 @@ if __name__ == '__main__':
     Frame_6 = LabelFrame(root, padx=0, pady=0, text="Calculate")
 
     # Output TextBox
-    Time_ACF_TextBox = Entry(Frame_6, width=65, borderwidth=5, bg="White", fg="Black", state=DISABLED)
+    Calculation_TextBox = Entry(Frame_6, width=65, borderwidth=5, bg="White", fg="Black", state=DISABLED)
 
     # Create Buttons
     Ensemble_Mean_Button = Button(Frame_6, text="Ensemble Mean", state=ACTIVE, padx=20, pady=2, fg="Black",
-                                  command=lambda: Calculate_Ensamble_Mean())
+                                  command=lambda: Calculate_Ensamble_Mean(Chosen_Processes.get()))
     Time_ACF_Button = Button(Frame_6, text="Time_ACF", state=ACTIVE, padx=20, pady=2, fg="Black",
                              command=lambda: GetInputFile())
     Total_Average_Power_Button = Button(Frame_6, text="Total_Average_Power", state=ACTIVE, padx=20, pady=2, fg="Black",
@@ -166,7 +198,7 @@ if __name__ == '__main__':
 
     # Shoving Frame 6 into the screen
     Frame_6.place(x=10, y=110)
-    Time_ACF_TextBox.pack(side=TOP)
+    Calculation_TextBox.pack(side=TOP)
     Ensemble_Mean_Button.pack(side=LEFT)
     Time_ACF_Button.place(x=135, y=27)
     Total_Average_Power_Button.pack(side=RIGHT)
