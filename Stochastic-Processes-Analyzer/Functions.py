@@ -131,19 +131,21 @@ def GenerateProcess_M(BitsNum, A, Tb):
     return Process_M
 
 
-def Calculate_Ensamble_Mean(Processe):
-    return Processe.sum(axis=0) / len(Processe)
-
-
-def Save_Output_File(Ensamble_Mean, FileName):
+def Save_Output_File(Otput_Name, Ensamble_Mean, FileName):
     try:
         FileHandel = open(FileName, 'w')
-        Text = "Ensemble Mean" + " \n" + \
+        Text = str(Otput_Name) + " \n" + \
                "===============" + " \n" + \
-               str(Ensamble_Mean) + "\n"
+               str(Ensamble_Mean) + "\n\n"
 
         FileHandel.write(Text)
         FileHandel.close()
         return True
     except:
         return False
+
+def Calculate_Ensamble_Mean(Processe):
+    return Processe.sum(axis=0) / len(Processe)
+
+def Calculate_Time_ACF(Processe):
+    return Processe.sum(axis=0) / len(Processe)
