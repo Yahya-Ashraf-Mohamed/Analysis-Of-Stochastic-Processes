@@ -1,7 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy import savetxt
-import os.path
+#from .colors import Colormap, Normalize
+from collections.abc import Mapping
 import pandas as pd
 
 
@@ -131,10 +132,24 @@ def GenerateProcess_M(BitsNum, A, Tb):
     return Process_M
 
 
-def Save_Output_File(Otput_Name, Ensamble_Mean, FileName):
+def Clear_Saved_Output_File(FileName):
     try:
         FileHandel = open(FileName, 'w')
-        Text = str(Otput_Name) + " \n" + \
+        Text = ""
+        FileHandel.write(Text)
+        FileHandel.close()
+        return True
+    except:
+        return False
+
+
+def Save_Output_File(Otput_Name, Ensamble_Mean, FileName):
+    try:
+        FileHandel = open(FileName, 'r')
+        Text = FileHandel.read()
+        FileHandel.close()
+        FileHandel = open(FileName, 'w')
+        Text = Text + str(Otput_Name) + " \n" + \
                "===============" + " \n" + \
                str(Ensamble_Mean) + "\n\n"
 
@@ -144,8 +159,137 @@ def Save_Output_File(Otput_Name, Ensamble_Mean, FileName):
     except:
         return False
 
+# =================================================================================================================== #
+
 def Calculate_Ensamble_Mean(Processe):
+    samples = Processe[1:]
     return Processe.sum(axis=0) / len(Processe)
 
-def Calculate_Time_ACF(Processe):
-    return Processe.sum(axis=0) / len(Processe)
+def Calculate_ACF(Processe, i, j):
+    samples = Processe[1:]
+    ACF = samples[:, i] * samples[:, j].sum() / (len(samples))
+    return ACF
+
+# TODO Not working!
+def Calculate_3D_ACF(Processe, i, j):
+    Time_Vector = Processe[0]
+    Total_ACF = np.zeros((len(Time_Vector), len(Time_Vector)))
+    for x in range(i):
+        for y in range(j):
+            ACF = np.array(Calculate_ACF(Processe, x, y))
+            Total_ACF[x,y] = ACF        # ERROR!
+    return Total_ACF
+
+def Calculate_Time_Mean(Processe, N):
+    Time_Vector = Processe[0]
+    sample = Processe[1:]
+
+    signal = sample[N]
+    dt = Time_Vector[1] - Time_Vector[0]
+    time_mean = np.sum(signal) * dt / (Time_Vector[-1] - Time_Vector[0])
+    return time_mean
+
+def plot_M_samples(Processe, M):
+    Time_Vector = Processe[0]
+    samples = Processe[np.random.randint(Processe.shape[1], size=M)]
+    fig, axs = plt.subplots(M)
+    fig.set_figheight(7)
+    fig.set_figwidth(8)
+    fig.suptitle(f"Graph of {M} Samples of the signal")
+    for i in range(M):
+        axs[i].plot(Time_Vector, samples[i])
+        axs[i].set_title(f"Realization {i + 1}")
+
+    plt.show()
+
+def Plot_Ensemble_Mean(Processe):
+    Time_Vector = Processe[0]
+    samples = Calculate_Ensamble_Mean(Processe)
+    plt.plot(Time_Vector, samples)
+    plt.title("Ensemble Mean Graph")
+    plt.xlabel("Time (t)")
+    plt.ylabel("Ensemble Mean")
+    plt.grid()
+    plt.show()
+
+def plot_3D_ACF(Processe, i, j):
+    Time_Vector = Processe[0]
+    Total_ACF = Calculate_3D_ACF(Processe, i, j)
+    X, Y = np.meshgrid(Time_Vector, Time_Vector)
+
+    fig, ax = plt.subplots(subplot_kw={"3D"})
+    surf = ax.plot_surface(X, Y, Total_ACF)
+
+    ax.set_title(f"Auto Correlation Function Graph")
+    ax.set_xlabel("i")
+    ax.set_ylabel("j")
+    ax.set_zlabel("Rx")
+    fig.colorbar(surf, shrink=0.5, aspect=5)
+    ax.view_init(45, 45)
+    plt.show()
+
+def Plot_Time_ACF(Processe, N):
+    Time_Vector = Processe[0]
+    signal = Processe[N]
+    samples_difference = np.arange(0, len(Time_Vector), 1)
+    τs = Time_Vector
+    time_ACF = np.zeros(len(τs))
+    for delta in samples_difference:
+        t1 = 0
+        t2 = int(delta)
+        dt = Time_Vector[1] - Time_Vector[0]
+
+        while t2 < len(Time_Vector):
+            time_ACF[int(delta)] += signal[int(t1)] * signal[int(t2)] * dt / len(Time_Vector)
+            t1 += dt
+            t2 += dt
+
+    plt.plot(τs, time_ACF)
+    plt.xlabel("τ")
+    plt.ylabel("Time ACF")
+    plt.title("Time ACF vs τ Graph")
+    plt.grid()
+    plt.show()
+
+
+def plot_PSD(Processe):
+    PSD, freqs= Calc_PSD(Processe)
+    plt.xlabel("Frequency (rad/sec)")
+    plt.ylabel("PSD")
+    plt.plot(freqs, PSD)
+    plt.show()
+
+    return PSD
+
+def Calc_PSD(Processe):
+    Time_Vector = Processe[0]
+    sample = Processe[1:]
+    n = len(Time_Vector)
+    fs = int(n/(Time_Vector[-1]-Time_Vector[0]))
+    freqs = np.arange(-n/2,n/2,1)*(fs/n)
+    PSD = np.zeros(len(freqs))
+    T = Time_Vector[-1] - Time_Vector[0]
+    for i in range(len(sample)):
+        FT = np.fft.fft(sample[i])
+        FT = np.fft.fftshift(FT)
+        PSD = PSD + (abs(FT)**2)/(T*n)
+
+    PSD = PSD/(len(sample))
+
+    return PSD, freqs
+
+def Calculate_total_average_power(Processe):
+    Time_Vector = Processe[0]
+    sample = Processe[1:]
+    x2 = np.zeros(len(sample))
+    dt = Time_Vector[1] - Time_Vector[0]
+
+    for i in range(len(sample)):
+        x2[i] = ((sample[i]) ** 2).sum() * dt
+
+    T = Time_Vector[-1] - Time_Vector[0]
+
+    TAVP = np.round(x2.sum() / (len(x2) * T), 3)
+    return TAVP
+
+

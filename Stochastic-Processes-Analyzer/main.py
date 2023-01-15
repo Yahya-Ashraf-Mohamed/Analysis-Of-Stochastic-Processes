@@ -141,10 +141,111 @@ def Click_Show_ACF_j_Button(key):
 #        j = int(ACF_j_TextBox.get(1.0, END))
 #        messagebox.showerror("ERROR", "Enter number of j sample you want!\n")
 
+def Plot_M_Ensable(Chosen_Processe):
+    try:
+        M = int(Ensemble_TextBox.get())
+        Processe = Get_Choosen_Process(Chosen_Processe)
+        Functions.plot_M_samples(Processe, M)
+    except:
+        messagebox.showerror("ERROR", "Enter an integer number!\n")
+
+
+def Calc_TMean(Chosen_Processe):
+    try:
+        N = int(Time_Mean_TextBox.get())
+        Processe = Get_Choosen_Process(Chosen_Processe)
+        Time_Mean = Functions.Calculate_Time_Mean(Processe, N)
+        TMean_TextBox.config(state=NORMAL)
+        TMean_TextBox.delete(0, END)
+        TMean_TextBox.insert(0, str(Time_Mean))
+        TMean_TextBox.config(state=DISABLED)
+        messagebox.showinfo("Time Mean", str(Time_Mean))
+
+        if (Functions.Save_Output_File("Time Mean", Time_Mean, OutPutName) == True):
+            messagebox.showinfo("Save", "Time Mean Saved Successfully in Output file")
+        else:
+            messagebox.showerror("ERROR", "Error in Saving!\n" + OutPutName)
+    except:
+        messagebox.showerror("ERROR", "Enter an integer number!\n")
+
+
+def Plot_Time_ACF (Chosen_Processe):
+    try:
+        N = int(Time_ACF_TextBox.get())
+        Processe = Get_Choosen_Process(Chosen_Processe)
+        Functions.Plot_Time_ACF(Processe, N)
+    except:
+        messagebox.showerror("ERROR", "Enter an integer number!\n")
+
+def Calc_Total_Average_Power(Chosen_Processe):
+    Processe = Get_Choosen_Process(Chosen_Processe)
+    TAP = Functions.Calculate_total_average_power(Processe)
+
+    Calculation_TextBox.config(state=NORMAL)
+    Calculation_TextBox.delete(0, END)
+    Calculation_TextBox.insert(0, str(TAP))
+    Calculation_TextBox.config(state=DISABLED)
+    messagebox.showinfo("Total Average Power", str(TAP))
+
+    if (Functions.Save_Output_File("Total Average Power", TAP, OutPutName) == True):
+        messagebox.showinfo("Save", "Total Average Power Saved Successfully in Output file")
+    else:
+        messagebox.showerror("ERROR", "Error in Saving!\n" + OutPutName)
+
+def Plot_Ensemble_Mean(Chosen_Processe):
+    Processe = Get_Choosen_Process(Chosen_Processe)
+    Functions.Plot_Ensemble_Mean(Processe)
+
+def Plot_Power_Spectral_Density(Chosen_Processe):
+    Processe = Get_Choosen_Process(Chosen_Processe)
+    Functions.plot_PSD(Processe)
+
+def Calc_Power_Spectral_Density(Chosen_Processe):
+    Processe = Get_Choosen_Process(Chosen_Processe)
+    PSD, freq= Functions.Calc_PSD(Processe)
+
+    Calculation_TextBox.config(state=NORMAL)
+    Calculation_TextBox.delete(0, END)
+    Calculation_TextBox.insert(0, str(PSD))
+    Calculation_TextBox.config(state=DISABLED)
+    messagebox.showinfo("Power Spectral Density", str(PSD))
+
+    if (Functions.Save_Output_File("Power Spectral Density", PSD, OutPutName) == True):
+        messagebox.showinfo("Save", "Power Spectral Density Saved Successfully in Output file")
+    else:
+        messagebox.showerror("ERROR", "Error in Saving!\n" + OutPutName)
+
+def Calc_ACF(Chosen_Processe):
+    Processe = Get_Choosen_Process(Chosen_Processe)
+    i = int(ACF_i_TextBox.get())
+    j = int(ACF_j_TextBox.get())
+    ACF = Functions.Calculate_ACF(Processe, i, j)
+
+    ACF_TextBox.config(state=NORMAL)
+    ACF_TextBox.delete(0, END)
+    ACF_TextBox.insert(0, str(ACF))
+    ACF_TextBox.config(state=DISABLED)
+    messagebox.showinfo("Auto Correlation Function", str(ACF))
+
+    if (Functions.Save_Output_File("Auto Correlation Function", ACF, OutPutName) == True):
+        messagebox.showinfo("Save", "Auto Correlation Function Saved Successfully in Output file")
+    else:
+        messagebox.showerror("ERROR", "Error in Saving!\n" + OutPutName)
+
+
+def Plot_3D_ACF(Chosen_Processe):
+    Processe = Get_Choosen_Process(Chosen_Processe)
+    i = int(ACF_i_TextBox.get())
+    j = int(ACF_j_TextBox.get())
+    try:
+        Functions.plot_3D_ACF(Processe, i, j)
+    except:
+        messagebox.showerror("ERROR", "An Error Occurred")
 
 
 if __name__ == '__main__':
 
+    Functions.Clear_Saved_Output_File(OutPutName)
     # Generate Processes
     Generate_Process()
     global Process
@@ -209,9 +310,9 @@ if __name__ == '__main__':
     Ensemble_Mean_Button = Button(Frame_6, text="Ensemble Mean", state=ACTIVE, padx=10, pady=2, fg="Black",
                                   command=lambda: Calculate_Ensamble_Mean(Chosen_Processes.get()))
     Power_Spectral_Density_Button = Button(Frame_6, text="Power Spectral Density", state=ACTIVE, padx=5, pady=2, fg="Black",
-                             command=lambda: Calculate_Time_ACF(Chosen_Processes.get()))
+                             command=lambda: Calc_Power_Spectral_Density(Chosen_Processes.get()))
     Total_Average_Power_Button = Button(Frame_6, text="Total_Average_Power", state=ACTIVE, padx=5, pady=2, fg="Black",
-                                        command=lambda: GetInputFile())
+                                        command=lambda: Calc_Total_Average_Power(Chosen_Processes.get()))
 
     # Shoving Frame 6 into the screen
     Frame_6.place(x=10, y=110)
@@ -232,7 +333,7 @@ if __name__ == '__main__':
 
     # Create Buttons
     Plot_M_Ensemble_Button = Button(Frame_2, text="Plot", state=DISABLED, padx=22, pady=2, fg="Black",
-                                command=lambda: GetInputFile())
+                                command=lambda: Plot_M_Ensable(Chosen_Processes.get()))
 
 # Shoving Frame 2 into the screen
     Frame_2.place(x=10, y=195)
@@ -259,9 +360,9 @@ if __name__ == '__main__':
 
     # Create Button
     Plot_ACF_Button = Button(Frame_3, text="Plot", state=DISABLED, padx=22, pady=2, fg="Black",
-                                    command=lambda: GetInputFile())
+                                    command=lambda: Plot_3D_ACF(Chosen_Processes.get()))
     Calculate_ACF_Button = Button(Frame_3, text="Calc", state=DISABLED, padx=15, pady=2, fg="Black",
-                             command=lambda: GetInputFile(), font=('Helvetica', 10))
+                             command=lambda: Calc_ACF(Chosen_Processes.get()), font=('Helvetica', 10))
 
 # Shoving Frame 3 into the screen
     Frame_3.place(x=260, y=195)
@@ -281,21 +382,24 @@ if __name__ == '__main__':
 # Frame 4
     Frame_4 = LabelFrame(root, padx=0, pady=0, text="Plot Time Mean of N samples")
     # Ensemble Label
-    Time_Mean_Label = Label(Frame_4, text='N Samples: ', width=10, height=1, borderwidth=3, bg="White", fg="Black",
+    Time_Mean_Label = Label(Frame_4, text='N Samples: ', width=12, height=1, borderwidth=3, bg="White", fg="Black",
                            font=('Helvetica', 10), justify="left")
     # Text box for M samples
-    Time_Mean_TextBox = Entry(Frame_4, width=10, borderwidth=5, bg="White", fg="Black")
+    Time_Mean_TextBox = Entry(Frame_4, width=20, borderwidth=5, bg="White", fg="Black")
     Time_Mean_TextBox.bind("<Key>", Click_Show_Plot_N_Time_Mean_Button)
 
+    TMean_TextBox = Entry(Frame_4, width=20, borderwidth=5, bg="White", fg="Black", state=DISABLED)
+
     # Create Buttons
-    Plot_N_Time_Mean_Button = Button(Frame_4, text="Plot", state=DISABLED, padx=22, pady=2, fg="Black",
-                                command=lambda: GetInputFile())
+    Plot_N_Time_Mean_Button = Button(Frame_4, text="Plot", state=DISABLED, padx=27, pady=2, fg="Black",
+                                command=lambda: Calc_TMean(Chosen_Processes.get()))
 
 # Shoving Frame 4 into the screen
-    Frame_4.place(x=10, y=273)
-    Time_Mean_Label.pack(side="left")
-    Time_Mean_TextBox.pack(side="left")
-    Plot_N_Time_Mean_Button.pack(side="right")
+    Frame_4.place(x=10, y=260)
+    Time_Mean_Label.grid(row=0, column=0)
+    Time_Mean_TextBox.grid(row=0, column=1)
+    Plot_N_Time_Mean_Button.grid(row=1, column=0)
+    TMean_TextBox.grid(row=1, column=1)
 
 # ==================================================================================================================== #
 # Frame 5
@@ -309,7 +413,7 @@ if __name__ == '__main__':
 
     # Create Buttons
     Plot_N_Time_ACF_Button = Button(Frame_5, text="Plot", state=DISABLED, padx=22, pady=2, fg="Black",
-                                    command=lambda: GetInputFile())
+                                    command=lambda: Plot_Time_ACF(Chosen_Processes.get()))
 
 # Shoving Frame 5 into the screen
     Frame_5.place(x=10, y=351)
@@ -323,9 +427,9 @@ if __name__ == '__main__':
 
     # Create Buttons
     Plot_Ensemble_Mean_Button = Button(Frame_7, text="Ensemble Mean", state=ACTIVE, padx=22, pady=2, fg="Black",
-                                  command=lambda: GetInputFile())
+                                  command=lambda: Plot_Ensemble_Mean(Chosen_Processes.get()))
     Plot_Power_Spectral_Density_Button = Button(Frame_7, text="Power Spectral Density", state=ACTIVE, padx=5, pady=2, fg="Black",
-                             command=lambda: GetInputFile())
+                             command=lambda: Plot_Power_Spectral_Density(Chosen_Processes.get()))
 
     # Shoving Frame 7 into the screen
     Frame_7.place(x=260, y=325)
